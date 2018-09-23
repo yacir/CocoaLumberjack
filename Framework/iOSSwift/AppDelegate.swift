@@ -8,7 +8,6 @@
 
 import UIKit
 import CocoaLumberjack
-import CocoaLumberjackSwift
 
 let ddloglevel = DDLogLevel.verbose
 
@@ -24,7 +23,7 @@ private func printSomething() {
 class AppDelegate: UIResponder, UIApplicationDelegate {
 	var window: UIWindow?
 
-	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    private func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
         let formatter = Formatter()
         DDTTYLogger.sharedInstance.logFormatter = formatter
