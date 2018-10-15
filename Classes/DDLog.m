@@ -255,6 +255,20 @@ static NSUInteger _numProcessors;
     } });
 }
 
++ (void)updateLogger:(id <DDLogger>)logger withLevel:(DDLogLevel)level {
+    [self.sharedInstance updateLogger:logger withLevel:level];
+}
+
+- (void)updateLogger:(id <DDLogger>)logger withLevel:(DDLogLevel)level {
+    if (!logger) {
+        return;
+    }
+    
+    dispatch_async(_loggingQueue, ^{ @autoreleasepool {
+        [self lt_updateLogger:logger withLevel:level];
+    } });
+}
+
 + (void)removeLogger:(id <DDLogger>)logger {
     [self.sharedInstance removeLogger:logger];
 }
@@ -736,6 +750,38 @@ static NSUInteger _numProcessors;
             [logger didAddLogger];
         } });
     }
+}
+
+- (void)lt_updateLogger:(id <DDLogger>)logger withLevel:(DDLogLevel)level {
+    // Find associated loggerNode in list of added loggers
+    
+    NSAssert(dispatch_get_specific(GlobalLoggingQueueIdentityKey),
+             @"This method should only be run on the logging thread/queue");
+    
+    DDLoggerNode *loggerNode = nil;
+    
+    for (DDLoggerNode *node in self._loggers) {
+        if (node->_logger == logger) {
+            if (node->_level == level) {
+                // Exactly same logger already added with same level, exit
+                return;
+            }
+            loggerNode = node;
+            break;
+        }
+    }
+    
+    if (!loggerNode) {
+        NSLogDebug(@"DDLog: Request to update logger which wasn't added");
+        return;
+    }
+    
+    // Remove from loggers array
+    [self._loggers removeObject:loggerNode];
+    
+    // Add updated node to loggers array
+    loggerNode = [DDLoggerNode nodeWithLogger:logger loggerQueue:loggerNode->_loggerQueue level:level];
+    [self._loggers addObject:loggerNode];
 }
 
 - (void)lt_removeLogger:(id <DDLogger>)logger {

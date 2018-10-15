@@ -462,6 +462,10 @@ FOUNDATION_EXTERN NSString * __nullable DDExtractFileNameWithoutExtension(const 
  **/
 - (void)addLogger:(id <DDLogger>)logger withLevel:(DDLogLevel)level;
 
++ (void)updateLogger:(id <DDLogger>)logger withLevel:(DDLogLevel)level;
+
+- (void)updateLogger:(id <DDLogger>)logger withLevel:(DDLogLevel)level;
+
 /**
  *  Remove the logger from the system
  */
